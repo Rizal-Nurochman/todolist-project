@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/NurochmanRizal/go-ToDoList/database"
@@ -104,11 +105,10 @@ func LoginHandler(c *gin.Context)  {
 }
 
 func Validator(c *gin.Context) {
-    user, _ := c.Get("user")
-
-    c.JSON(http.StatusOK, gin.H{
-        "message": user,
-    })
+    user,_ := c.Get("user")
+		c.JSON(http.StatusOK, gin.H{
+			"user":user,
+		})
 }
 
 func PostToDoHandler(c *gin.Context) {
@@ -141,7 +141,7 @@ func PostToDoHandler(c *gin.Context) {
 	})
 }
 
-func GetTodoByID(c *gin.Context)  {
+func GetTodoByUser(c *gin.Context)  {
 	userID:=c.MustGet("userid").(uint)
 	var todo []models.Todos
 	err:=database.DB.Where("userid = ?", userID).Find(&todo).Error
@@ -155,4 +155,30 @@ func GetTodoByID(c *gin.Context)  {
 	c.JSON(http.StatusOK, gin.H{
 		"data":todo,
 	})
+}
+
+func GetTodoByIDUser(c *gin.Context) {
+	idString:=c.Param("id")
+	id, err:=strconv.Atoi(idString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+
+	var todo models.Todos
+	userID:=c.MustGet("userid").(uint)
+	err=database.DB.Where("id = ? AND userid = ?", id, userID).First(&todo).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":todo,
+	})
+
 }
