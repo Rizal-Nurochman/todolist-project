@@ -1,7 +1,9 @@
 package main
 
 import (
+	"os"
 	"time"
+
 	"github.com/NurochmanRizal/go-ToDoList/database"
 	"github.com/NurochmanRizal/go-ToDoList/handler"
 	"github.com/NurochmanRizal/go-ToDoList/middleware"
@@ -22,17 +24,25 @@ func main() {
 	}))
 	
 	database.ConnectToDatabase()
+	handler.LoadEnv()
 
 	api:=router.Group("/api")
 	{
 		auth:=api.Group("/auth")
 		{
 			auth.POST("/signup", handler.SignUpHandler)
-			auth.POST("/login", middleware.Auth, handler.LoginHandler)
+			auth.POST("/login", handler.LoginHandler)
 		}
 	}
 
-	router.GET("/todo", handler.GetTodoByUser)
-	router.GET("/todo:userid")
-	router.POST("/todo", handler.PostToDoHandler)
+	todo:=api.Group("/todo")
+	todo.Use(middleware.Auth)
+	{
+		todo.GET("", handler.GetTodoByUser)
+		todo.GET(":id", handler.GetTodoByIDUser)
+		todo.POST("", handler.PostToDoHandler)
+	}
+
+	PORT:=os.Getenv("PORT")
+	router.Run(":"+PORT)
 }

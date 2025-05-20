@@ -121,7 +121,7 @@ func PostToDoHandler(c *gin.Context) {
 		return
 	}
 
-	userID:=c.MustGet("userid").(uint)
+	userID:=c.MustGet("UserID").(uint)
 	newTodo:= models.Todos{
 		Name: todos.Name,
 		UserID: userID,
@@ -142,9 +142,9 @@ func PostToDoHandler(c *gin.Context) {
 }
 
 func GetTodoByUser(c *gin.Context)  {
-	userID:=c.MustGet("userid").(uint)
+	userID:=c.MustGet("UserID").(uint)
 	var todo []models.Todos
-	err:=database.DB.Where("userid = ?", userID).Find(&todo).Error
+	err:=database.DB.Where("UserID = ?", userID).Find(&todo).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":err.Error(),
@@ -168,8 +168,8 @@ func GetTodoByIDUser(c *gin.Context) {
 	}
 
 	var todo models.Todos
-	userID:=c.MustGet("userid").(uint)
-	err=database.DB.Where("id = ? AND userid = ?", id, userID).First(&todo).Error
+	userID:=c.MustGet("UserID").(uint)
+	err=database.DB.Where("id = ? AND UserID = ?", id, userID).First(&todo).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":err.Error(),

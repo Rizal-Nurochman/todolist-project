@@ -21,7 +21,7 @@ func Auth(c *gin.Context) {
 	
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 	// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-	return os.Getenv("SECRET"), nil
+	return []byte(os.Getenv("SECRET")) , nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
 		log.Fatal(err)
